@@ -121,7 +121,11 @@ def main():
     try:
         bot.run(token)
     except HTTPException as e:
-        print(f"Discord HTTPException: {e.status} {e.text} {e.response} {e.code} {e.args}")
+        print("Discord HTTPException:\n"
+              f"{e.status=}\n"
+              f"{e.code=}\n"
+              f"{e.text=}\n"
+              f"{e.response=}")
 
 
 if __name__ == '__main__':
