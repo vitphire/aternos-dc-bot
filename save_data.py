@@ -37,11 +37,3 @@ class GuildSaves:
     @selected_server.setter
     def selected_server(self, value: int) -> None:
         save_data(self.guild_id, 'selected_server', str(value))
-
-    @property
-    def selected_channel_id(self) -> int:
-        return int(get_data(self.guild_id, 'selected_channel')) or 0
-
-    @selected_channel_id.setter
-    def selected_channel_id(self, value: int) -> None:
-        save_data(self.guild_id, 'selected_channel', str(value))
