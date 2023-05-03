@@ -1,7 +1,7 @@
 import asyncio
 
 import discord
-from discord import Bot
+from discord import Bot, HTTPException
 from dotenv import load_dotenv
 from python_aternos import Client, AternosServer, Status, ServerStartError
 
@@ -118,7 +118,10 @@ def main():
         guilds = nice_list([guild.name for guild in bot.guilds], prefix="\t")
         print(f"Guilds: \n{guilds}")
 
-    bot.run(token)
+    try:
+        bot.run(token)
+    except HTTPException as e:
+        print(f"Discord HTTPException: {e}")
 
 
 if __name__ == '__main__':
