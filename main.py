@@ -89,7 +89,7 @@ def main():
         while server.status_num != Status.on:
             server.fetch()
             await asyncio.sleep(0.5)
-        await ctx.respond(f"<@{ctx.author().id}> Server started!\n"
+        await ctx.respond(f"<@{ctx.author.id}> Server started!\n"
                           f"Join now at `{server.address}`")
         pass
 
