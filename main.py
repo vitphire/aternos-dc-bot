@@ -126,6 +126,8 @@ def main():
               f"{e.code=}\n"
               f"{e.text=}\n"
               f"{e.response=}")
+        seconds_to_wait = int(e.response.headers["Retry-After"])
+        print(f"Wait {seconds_to_wait // 60} minutes and {seconds_to_wait % 60} seconds and try again.")
 
 
 if __name__ == '__main__':
