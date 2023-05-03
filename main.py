@@ -3,7 +3,7 @@ import asyncio
 import discord
 from discord import Bot
 from dotenv import load_dotenv
-from python_aternos import Client, AternosServer, Status
+from python_aternos import Client, AternosServer, Status, ServerStartError
 
 from save_data import *
 
@@ -80,9 +80,13 @@ def main():
     @bot.command(name="start", description="Starts the selected server")
     async def handle_start(ctx: discord.ApplicationContext):
         server = current_server(GuildSaves(ctx))
-        server.start()
+        try:
+            server.start()
+        except ServerStartError as e:
+            await ctx.respond(f"Server failed to start: {e}")
+            return
         await ctx.respond("Starting server...")
-        while server.status_num != Status.starting:
+        while server.status_num != Status.starting and server.status_num != Status.on:
             server.fetch()
             await asyncio.sleep(0.5)
         await ctx.respond(f"Server (`{server.address}`) is starting...")
