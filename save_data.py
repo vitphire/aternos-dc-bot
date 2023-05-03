@@ -6,11 +6,12 @@ def save_data(guild_id: int, key: str, value: str) -> None:
     if not os.path.exists('saved.json'):
         with open('saved.json', 'w') as f:
             json.dump({}, f)
-    with open('saved.json', 'rw') as f:
+    with open('saved.json', 'r') as f:
         saved = json.load(f)
-        if str(guild_id) not in saved:
-            saved[str(guild_id)] = {}
-        saved[str(guild_id)][key] = value
+    if str(guild_id) not in saved:
+        saved[str(guild_id)] = {}
+    saved[str(guild_id)][key] = value
+    with open('saved.json', 'w') as f:
         json.dump(saved, f)
 
 
