@@ -1,33 +1,35 @@
 import json
 import os
 
+from discord import ApplicationContext
+
 
 def save_data(guild_id: int, key: str, value: str) -> None:
-    if not os.path.exists('saved.json'):
-        with open('saved.json', 'w') as f:
+    filename = os.path.join('saved', f'{guild_id}.json')
+    if not os.path.exists('saved'):
+        os.mkdir('saved')
+    if not os.path.exists(filename):
+        with open(filename, 'w') as f:
             json.dump({}, f)
-    with open('saved.json', 'r') as f:
+    with open(filename, 'r') as f:
         saved = json.load(f)
-    if str(guild_id) not in saved:
-        saved[str(guild_id)] = {}
-    saved[str(guild_id)][key] = value
-    with open('saved.json', 'w') as f:
+        saved[key] = value
+    with open(filename, 'w') as f:
         json.dump(saved, f)
 
 
 def get_data(guild_id: int, key: str) -> str | None:
-    if not os.path.exists('saved.json'):
-        with open('saved.json', 'w') as f:
-            json.dump({}, f)
-    with open('saved.json', 'r') as f:
+    filename = os.path.join('saved', f'{guild_id}.json')
+    if not os.path.exists(filename):
+        return None
+    with open(filename, 'r') as f:
         saved = json.load(f)
-        if str(guild_id) not in saved:
-            return None
-        return saved[str(guild_id)][key]
+        return saved.get(key)
 
 
 class GuildSaves:
-    def __init__(self, guild_id):
+    def __init__(self, ctx: ApplicationContext):
+        guild_id = ctx.guild_id
         self.guild_id = guild_id
 
     @property
