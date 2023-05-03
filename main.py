@@ -50,7 +50,7 @@ def main():
         await ctx.respond(embed=default_embed(title="Servers", description=server_list))
 
     @bot.command(name="info", description="Prints info about the selected server")
-    async def handle_info(ctx: discord.Message):
+    async def handle_info(ctx: discord.ApplicationContext):
         server = current_server(GuildSaves(ctx))
         server.fetch()
         server_address = server.address
@@ -78,23 +78,24 @@ def main():
         pass
 
     @bot.command(name="start", description="Starts the selected server")
-    async def handle_start(ctx: discord.Message):
+    async def handle_start(ctx: discord.ApplicationContext):
         server = current_server(GuildSaves(ctx))
         server.start()
         await ctx.respond("Starting server...")
         while server.status_num != Status.starting:
             server.fetch()
             await asyncio.sleep(0.5)
-        await ctx.respond(f"Server ({server.address}) is starting...")
+        await ctx.respond(f"Server (`{server.address}`) is starting...")
         while server.status_num != Status.on:
             server.fetch()
             await asyncio.sleep(0.5)
-        await ctx.respond(f"<@{ctx.author.id}> Server started!\n"
+        await ctx.respond(f"<@{ctx.author().id}> Server started!\n"
                           f"Join now at `{server.address}`")
         pass
 
     @bot.command(name="select", description="Selects a server")
-    async def handle_select(ctx: discord.Message, server_id: discord.Option(int, description="Server index")):
+    async def handle_select(ctx: discord.ApplicationContext,
+                            server_id: discord.Option(int, description="Server index")):
         server_id = server_id - 1
         if server_id < 0 or server_id >= len(aternos.list_servers(cache=False)):
             await ctx.respond("Invalid server index.\n"
@@ -105,7 +106,7 @@ def main():
         server = current_server(saves)
         await ctx.respond(embed=default_embed(title="Server Selected",
                                               description=f"Server {server_id + 1} "
-                                                          f"({server.address}) selected."))
+                                                          f"(`{server.address}`) selected."))
 
     @bot.event
     async def on_ready():
