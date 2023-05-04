@@ -1,7 +1,7 @@
 import asyncio
 
 import discord
-from discord import Bot, HTTPException
+from discord import Bot, HTTPException, Interaction
 from dotenv import load_dotenv
 from python_aternos import Client, AternosServer, Status, ServerStartError
 
@@ -82,19 +82,27 @@ def main():
         server = current_server(GuildSaves(ctx))
         try:
             server.start()
-        except ServerStartError as e:
-            await ctx.respond(f"Server failed to start: {e}")
+        except ServerStartError as _e:
+            await ctx.respond(f"Server failed to start: {_e}")
             return
-        await ctx.respond("Starting server...")
-        while server.status_num != Status.starting and server.status_num != Status.on:
+        r_interaction: Interaction = await ctx.respond("Starting server...")
+        while (server.status_num != Status.loading and
+               server.status_num != Status.starting and
+               server.status_num != Status.on):
             server.fetch()
             await asyncio.sleep(0.5)
-        await ctx.respond(f"Server (`{server.address}`) is starting...")
+        await r_interaction.edit_original_response(content=f"Server (`{server.address}`) is loading...")
+        while (server.status_num != Status.starting and
+               server.status_num != Status.on):
+            server.fetch()
+            await asyncio.sleep(0.5)
+        await r_interaction.edit_original_response(content=f"Server (`{server.address}`) is starting...")
         while server.status_num != Status.on:
             server.fetch()
             await asyncio.sleep(0.5)
-        await ctx.respond(f"<@{ctx.author.id}> Server started!\n"
-                          f"Join now at `{server.address}`")
+        await r_interaction.followup.send(
+            content=f"<@{ctx.author.id}> Server is now online!\n"
+                    f"Join now at `{server.address}`")
         pass
 
     @bot.command(name="select", description="Selects a server")
