@@ -52,19 +52,20 @@ def main():
     @bot.command(name="info", description="Prints info about the selected server")
     async def handle_info(ctx: discord.ApplicationContext):
         server = current_server(GuildSaves(ctx))
-        server.fetch()
         server_address = server.address
         try:
+            server.fetch()
             # Colors: 1 = red, 2 = green, 3 = yellow, 4 = blue
-            c = {Status.off: 1,
-                 Status.on: 2,
-                 Status.starting: 3,
-                 Status.shutdown: 4,
-                 Status.loading: 3,
-                 Status.error: 1,
-                 Status.preparing: 3,
-                 Status.confirm: 1
-                 }[server.status_num]
+            c = {"off": 1,
+                 "error": 1,
+                 "on": 2,
+                 "starting": 3,
+                 "loading": 3,
+                 "preparing": 3,
+                 "shutdown": 4,
+                 "saving": 4,
+                 "confirm": 1
+                 }[server.status]
         except ValueError:
             print(f"Server status code not found for {server.status}")
             c = 0
