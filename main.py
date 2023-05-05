@@ -56,9 +56,9 @@ def main():
         try:
             server.fetch()
             # Colors: 1 = red, 2 = green, 3 = yellow, 4 = blue
-            c = {"off": 1,
+            c = {"offline": 1,
                  "error": 1,
-                 "on": 2,
+                 "online": 2,
                  "starting": 3,
                  "loading": 3,
                  "preparing": 3,
@@ -66,7 +66,7 @@ def main():
                  "saving": 4,
                  "confirm": 1
                  }[server.status]
-        except ValueError:
+        except KeyError:
             print(f"Server status code not found for {server.status}")
             c = 0
         server_status = f"\u001b[0;3{c}m{server.status}\u001b[0m"
