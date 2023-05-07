@@ -40,7 +40,7 @@ def main():
                                               sessions_dir=os.getcwd())
 
     def current_server(saved: GuildSaves) -> AternosServer:
-        return aternos.list_servers(cache=False)[saved.selected_server]
+        return aternos.list_servers()[saved.selected_server]
 
     @bot.command(name="servers", description="List all servers")
     async def handle_servers(ctx: discord.Message):
@@ -110,7 +110,7 @@ def main():
     async def handle_select(ctx: discord.ApplicationContext,
                             server_id: discord.Option(int, description="Server index")):
         server_id = server_id - 1
-        if server_id < 0 or server_id >= len(aternos.list_servers(cache=False)):
+        if server_id < 0 or server_id >= len(aternos.list_servers()):
             await ctx.respond("Invalid server index.\n"
                               "Use `/servers` to list all servers.")
             return
