@@ -88,6 +88,7 @@ def main():
             await ctx.respond(f"Server failed to start: {_e}")
             return
         r_interaction: Interaction = await ctx.respond("Starting server...")
+        server.fetch()
         while (server.status_num != Status.loading and
                server.status_num != Status.starting and
                server.status_num != Status.on):
