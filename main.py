@@ -44,7 +44,7 @@ def main():
         return aternos.list_servers()[saved.selected_server]
 
     @at_bot.at_command("servers", description="List all servers")
-    async def handle_servers():
+    async def handle_servers(_: discord.ApplicationContext):
         servers = aternos.list_servers(cache=False)
         server_list = nice_list([server.address for server in servers])
         server_list = f"```{server_list}```"
@@ -76,8 +76,7 @@ def main():
                       f"Status: {server_status}\n" \
                       f"Version: {server_version}"
         server_info = f"```ansi\n{server_info}```"
-        await ctx.respond(embed=default_embed(title="Server Info", description=server_info))
-        pass
+        return default_embed(title="Server Info", description=server_info)
 
     @at_bot.command(name="start", description="Starts the selected server")
     async def handle_start(ctx: discord.ApplicationContext):
@@ -85,12 +84,11 @@ def main():
         server = selected_server(GuildSaves(ctx))
         server.fetch()
         if server.status_num == Status.on:
-            return await ctx.respond(f"Server is already online at `{server.address}`")
+            return f"Server is already online at `{server.address}`"
         try:
             server.start()
         except ServerStartError as _e:
-            await ctx.respond(f"Server failed to start: {_e}")
-            return
+            return f"Server failed to start: {_e}"
         r_interaction: Interaction = await ctx.respond("Starting server...")
         while (server.status_num != Status.loading and
                server.status_num != Status.starting and
@@ -125,9 +123,9 @@ def main():
         saves = GuildSaves(ctx)
         saves.selected_server = server_id
         server = selected_server(saves)
-        await ctx.respond(embed=default_embed(title="Server Selected",
-                                              description=f"Server {server_id + 1} "
-                                                          f"(`{server.address}`) selected."))
+        return default_embed(title="Server Selected",
+                             description=f"Server {server_id + 1} "
+                                         f"(`{server.address}`) selected.")
 
     @at_bot.event
     async def on_ready():
