@@ -34,7 +34,7 @@ def main():
     if aternos_username is None or aternos_password is None:
         raise Exception('ATERNOS_USERNAME or ATERNOS_PASSWORD is not set')
 
-    bot: Bot = discord.Bot()
+    bot: Bot = Bot()
     aternos: Client = Client.from_credentials(aternos_username,
                                               aternos_password,
                                               sessions_dir=os.getcwd())
@@ -80,6 +80,7 @@ def main():
 
     @bot.command(name="start", description="Starts the selected server")
     async def handle_start(ctx: discord.ApplicationContext):
+        print(f"handle_start was called by {ctx.author.name}")
         server = current_server(GuildSaves(ctx))
         try:
             server.start()
@@ -92,15 +93,18 @@ def main():
                server.status_num != Status.on):
             server.fetch()
             await asyncio.sleep(0.5)
+        print(f"Server status: {server.status}, {server.status_num}")
         await r_interaction.edit_original_response(content=f"Server (`{server.address}`) is loading...")
         while (server.status_num != Status.starting and
                server.status_num != Status.on):
             server.fetch()
             await asyncio.sleep(0.5)
+        print(f"Server status: {server.status}, {server.status_num}")
         await r_interaction.edit_original_response(content=f"Server (`{server.address}`) is starting...")
         while server.status_num != Status.on:
             server.fetch()
             await asyncio.sleep(0.5)
+        print(f"Server status: {server.status}, {server.status_num}")
         await r_interaction.followup.send(
             content=f"<@{ctx.author.id}> Server is now online!\n"
                     f"Join now at `{server.address}`")
