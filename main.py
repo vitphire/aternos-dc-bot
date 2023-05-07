@@ -1,7 +1,7 @@
 import asyncio
 
 import discord
-from discord import Bot, HTTPException, Interaction
+from discord import HTTPException, Interaction
 from dotenv import load_dotenv
 from python_aternos import Client, AternosServer, Status, ServerStartError
 
@@ -40,23 +40,19 @@ def main():
                                               aternos_password,
                                               sessions_dir=os.getcwd())
 
-    def current_server(saved: GuildSaves) -> AternosServer:
+    def selected_server(saved: GuildSaves) -> AternosServer:
         return aternos.list_servers()[saved.selected_server]
 
-    @at_bot.at_command("test", description="Test command")
-    async def handle_test(ctx: discord.ApplicationContext, arg1: str, arg2: int = 0):
-        await ctx.respond(f" Test command called with args: {arg1=}, {arg2=}")
-
     @at_bot.at_command("servers", description="List all servers")
-    async def handle_servers(ctx: discord.Message):
+    async def handle_servers():
         servers = aternos.list_servers(cache=False)
         server_list = nice_list([server.address for server in servers])
         server_list = f"```{server_list}```"
-        await ctx.respond(embed=default_embed(title="Servers", description=server_list))
+        return default_embed(title="Servers", description=server_list)
 
-    @at_bot.command(name="info", description="Prints info about the selected server")
+    @at_bot.at_command("info", description="Prints info about the selected server")
     async def handle_info(ctx: discord.ApplicationContext):
-        server = current_server(GuildSaves(ctx))
+        server = selected_server(GuildSaves(ctx))
         server_address = server.address
         try:
             server.fetch()
@@ -67,7 +63,7 @@ def main():
                  "starting": 3,
                  "loading": 3,
                  "preparing": 3,
-                 "shutdown": 4,
+                 "stopping": 4,
                  "saving": 4,
                  "confirm": 1
                  }[server.status]
@@ -86,14 +82,16 @@ def main():
     @at_bot.command(name="start", description="Starts the selected server")
     async def handle_start(ctx: discord.ApplicationContext):
         print(f"handle_start was called by {ctx.author.name}")
-        server = current_server(GuildSaves(ctx))
+        server = selected_server(GuildSaves(ctx))
+        server.fetch()
+        if server.status_num == Status.on:
+            return await ctx.respond(f"Server is already online at `{server.address}`")
         try:
             server.start()
         except ServerStartError as _e:
             await ctx.respond(f"Server failed to start: {_e}")
             return
         r_interaction: Interaction = await ctx.respond("Starting server...")
-        server.fetch()
         while (server.status_num != Status.loading and
                server.status_num != Status.starting and
                server.status_num != Status.on):
@@ -118,15 +116,15 @@ def main():
 
     @at_bot.at_command("select", description="Selects a server")
     async def handle_select(ctx: discord.ApplicationContext,
-                            server_id: discord.Option(int, description="Server index"),
-                            saves: GuildSaves):
+                            server_id: discord.Option(int, description="Server index")):
         server_id = server_id - 1
         if server_id < 0 or server_id >= len(aternos.list_servers()):
             await ctx.respond("Invalid server index.\n"
                               "Use `/servers` to list all servers.")
             return
+        saves = GuildSaves(ctx)
         saves.selected_server = server_id
-        server = current_server(saves)
+        server = selected_server(saves)
         await ctx.respond(embed=default_embed(title="Server Selected",
                                               description=f"Server {server_id + 1} "
                                                           f"(`{server.address}`) selected."))
