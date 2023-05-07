@@ -2,8 +2,6 @@ from functools import wraps
 
 import discord
 
-from save_data import GuildSaves
-
 
 class AternosBot(discord.Bot):
     """
