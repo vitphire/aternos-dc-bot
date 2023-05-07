@@ -21,7 +21,12 @@ class AternosBot(discord.Bot):
             @wraps(func)
             async def logged_func(ctx, *args, **kwargs_):
                 print(f"{func.__name__} was called with args: {args=}, {kwargs_=}")
-                result = await func(ctx, saves=GuildSaves(ctx), *args, **kwargs_)
+                try:
+                    result = await func(ctx, *args, **kwargs_)
+                except Exception as e:
+                    await ctx.respond("Handling this command raised an error.\n"
+                                      "Contact vitphire#1440 for help.")
+                    raise e
                 if isinstance(result, discord.Embed):
                     print("Responding with embed:")
                     print(f"\t{result.title=}")
