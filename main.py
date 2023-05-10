@@ -52,6 +52,7 @@ def main():
 
     @at_bot.at_command("info", description="Prints info about the selected server")
     async def handle_info(ctx: discord.ApplicationContext):
+        global aternos
         server = selected_server(GuildSaves(ctx))
         server_address = server.address
         try:
@@ -70,6 +71,15 @@ def main():
         except KeyError:
             print(f"Server status code not found for {server.status}")
             c = 0
+        # Server responds with 418 I'm a teapot when it doesn't know what to do
+        except HTTPException as e:
+            if e.status == 418:
+                # We need to delete the session file and authenticate again
+                os.remove(aternos.session_file(username=aternos_username,
+                                               sessions_dir=os.getcwd()))
+                aternos = Client.from_credentials(aternos_username,
+                                                  aternos_password,
+                                                  sessions_dir=os.getcwd())
         server_status = f"\u001b[0;3{c}m{server.status}\u001b[0m"
         server_version = server.software + " " + server.version
         server_info = f"Address: {server_address}\n" \
