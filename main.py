@@ -2,15 +2,10 @@ import asyncio
 
 import discord
 from discord import HTTPException, Interaction
-from dotenv import load_dotenv
-from python_aternos import Client, AternosServer, Status, ServerStartError
+from python_aternos import AternosServer, Status, ServerStartError
 
 from aternos_bot import AternosBot
 from save_data import *
-
-
-def get_env(key):
-    return os.getenv(key) or os.environ.get(key)
 
 
 def nice_list(lines, prefix="") -> str:
@@ -24,28 +19,15 @@ def default_embed(**kwargs):
 
 
 def main():
-    load_dotenv()
-
-    token = get_env('DISCORD_TOKEN')
-    if token is None:
-        raise Exception('DISCORD_TOKEN is not set')
-
-    aternos_username = get_env('ATERNOS_USERNAME')
-    aternos_password = get_env('ATERNOS_PASSWORD')
-    if aternos_username is None or aternos_password is None:
-        raise Exception('ATERNOS_USERNAME or ATERNOS_PASSWORD is not set')
 
     at_bot: AternosBot = AternosBot()
-    aternos: Client = Client.from_credentials(aternos_username,
-                                              aternos_password,
-                                              sessions_dir=os.getcwd())
 
     def selected_server(saved: GuildSaves) -> AternosServer:
-        return aternos.list_servers()[saved.selected_server]
+        return at_bot.aternos.list_servers()[saved.selected_server]
 
     @at_bot.at_command("servers", description="List all servers")
     async def handle_servers(_: discord.ApplicationContext):
-        servers = aternos.list_servers(cache=False)
+        servers = at_bot.aternos.list_servers(cache=False)
         server_list = nice_list([server.address for server in servers])
         server_list = f"```{server_list}```"
         return default_embed(title="Servers", description=server_list)
@@ -74,8 +56,7 @@ def main():
         except HTTPException as e:
             if e.status == 418:
                 # We need to delete the session file and authenticate again
-                os.remove(aternos.session_file(username=aternos_username,
-                                               sessions_dir=os.getcwd()))
+                at_bot.invalidate_session()
             raise e
         server_status = f"\u001b[0;3{c}m{server.status}\u001b[0m"
         server_version = server.software + " " + server.version
@@ -123,7 +104,7 @@ def main():
     async def handle_select(ctx: discord.ApplicationContext,
                             server_id: discord.Option(int, description="Server index")):
         server_id = server_id - 1
-        if server_id < 0 or server_id >= len(aternos.list_servers()):
+        if server_id < 0 or server_id >= len(at_bot.aternos.list_servers()):
             await ctx.respond("Invalid server index.\n"
                               "Use `/servers` to list all servers.")
             return
@@ -140,19 +121,7 @@ def main():
         guilds = nice_list([guild.name for guild in at_bot.guilds], prefix="\t")
         print(f"Guilds: \n{guilds}")
 
-    def run():
-        try:
-            at_bot.run(token)
-        except HTTPException as e:
-            print("Discord HTTPException:\n"
-                  f"{e.status=}\n"
-                  f"{e.code=}\n"
-                  f"{e.text=}\n"
-                  f"{e.response=}")
-            seconds_to_wait = int(e.response.headers["Retry-After"])
-            print(f"Wait {seconds_to_wait // 60} minutes and {seconds_to_wait % 60} seconds and try again.")
-
-    run()
+    at_bot.at_run()
 
 
 if __name__ == '__main__':
