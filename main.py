@@ -52,7 +52,6 @@ def main():
 
     @at_bot.at_command("info", description="Prints info about the selected server")
     async def handle_info(ctx: discord.ApplicationContext):
-        global aternos
         server = selected_server(GuildSaves(ctx))
         server_address = server.address
         try:
@@ -77,9 +76,7 @@ def main():
                 # We need to delete the session file and authenticate again
                 os.remove(aternos.session_file(username=aternos_username,
                                                sessions_dir=os.getcwd()))
-                aternos = Client.from_credentials(aternos_username,
-                                                  aternos_password,
-                                                  sessions_dir=os.getcwd())
+            raise e
         server_status = f"\u001b[0;3{c}m{server.status}\u001b[0m"
         server_version = server.software + " " + server.version
         server_info = f"Address: {server_address}\n" \
@@ -88,7 +85,7 @@ def main():
         server_info = f"```ansi\n{server_info}```"
         return default_embed(title="Server Info", description=server_info)
 
-    @at_bot.command(name="start", description="Starts the selected server")
+    @at_bot.at_command("start", description="Starts the selected server")
     async def handle_start(ctx: discord.ApplicationContext):
         print(f"handle_start was called by {ctx.author.name}")
         server = selected_server(GuildSaves(ctx))
@@ -143,16 +140,19 @@ def main():
         guilds = nice_list([guild.name for guild in at_bot.guilds], prefix="\t")
         print(f"Guilds: \n{guilds}")
 
-    try:
-        at_bot.run(token)
-    except HTTPException as e:
-        print("Discord HTTPException:\n"
-              f"{e.status=}\n"
-              f"{e.code=}\n"
-              f"{e.text=}\n"
-              f"{e.response=}")
-        seconds_to_wait = int(e.response.headers["Retry-After"])
-        print(f"Wait {seconds_to_wait // 60} minutes and {seconds_to_wait % 60} seconds and try again.")
+    def run():
+        try:
+            at_bot.run(token)
+        except HTTPException as e:
+            print("Discord HTTPException:\n"
+                  f"{e.status=}\n"
+                  f"{e.code=}\n"
+                  f"{e.text=}\n"
+                  f"{e.response=}")
+            seconds_to_wait = int(e.response.headers["Retry-After"])
+            print(f"Wait {seconds_to_wait // 60} minutes and {seconds_to_wait % 60} seconds and try again.")
+
+    run()
 
 
 if __name__ == '__main__':
