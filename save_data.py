@@ -28,6 +28,10 @@ def get_data(guild_id: int, key: str) -> str | None:
 
 
 class GuildSaves:
+    """
+    This class is used to save data for a specific guild.
+    """
+
     def __init__(self, ctx: ApplicationContext):
         guild_id = ctx.guild_id
         self.guild_id = guild_id
