@@ -19,7 +19,6 @@ def default_embed(**kwargs):
 
 
 def main():
-
     at_bot: AternosBot = AternosBot()
 
     def selected_server(saved: GuildSaves) -> AternosServer:
@@ -38,6 +37,17 @@ def main():
         server_address = server.address
         try:
             server.fetch()
+        # Server responds with 418 I'm a teapot when it doesn't know what to do
+        except HTTPException as e:
+            if e.status == 418:
+                # We need to delete the session file and authenticate again
+                at_bot.invalidate_session()
+                print("Session invalidated, retrying...")
+                server = selected_server(GuildSaves(ctx))
+                server.fetch()
+            else:
+                raise e
+        try:
             # Colors: 1 = red, 2 = green, 3 = yellow, 4 = blue
             c = {"offline": 1,
                  "error": 1,
@@ -52,12 +62,6 @@ def main():
         except KeyError:
             print(f"Server status code not found for {server.status}")
             c = 0
-        # Server responds with 418 I'm a teapot when it doesn't know what to do
-        except HTTPException as e:
-            if e.status == 418:
-                # We need to delete the session file and authenticate again
-                at_bot.invalidate_session()
-            raise e
         server_status = f"\u001b[0;3{c}m{server.status}\u001b[0m"
         server_version = server.software + " " + server.version
         server_info = f"Address: {server_address}\n" \
