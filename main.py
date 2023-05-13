@@ -24,6 +24,19 @@ def main():
     def selected_server(saved: GuildSaves) -> AternosServer:
         return at_bot.aternos.list_servers()[saved.selected_server]
 
+    def safe_fetch(server: AternosServer, ctx: ApplicationContext) -> AternosServer:
+        try:
+            server.fetch()
+            return server
+        except HTTPException as e:
+            if e.status == 418:
+                # We need to delete the session file and authenticate again
+                at_bot.invalidate_session()
+                print("Session invalidated, retrying...")
+                return selected_server(GuildSaves(ctx))
+            else:
+                raise e
+
     @at_bot.at_command("servers", description="List all servers")
     async def handle_servers(_: discord.ApplicationContext):
         servers = at_bot.aternos.list_servers(cache=False)
@@ -35,18 +48,7 @@ def main():
     async def handle_info(ctx: discord.ApplicationContext):
         server = selected_server(GuildSaves(ctx))
         server_address = server.address
-        try:
-            server.fetch()
-        # Server responds with 418 I'm a teapot when it doesn't know what to do
-        except HTTPException as e:
-            if e.status == 418:
-                # We need to delete the session file and authenticate again
-                at_bot.invalidate_session()
-                print("Session invalidated, retrying...")
-                server = selected_server(GuildSaves(ctx))
-                server.fetch()
-            else:
-                raise e
+        server = safe_fetch(server, ctx)
         try:
             # Colors: 1 = red, 2 = green, 3 = yellow, 4 = blue
             c = {"offline": 1,
@@ -72,9 +74,8 @@ def main():
 
     @at_bot.at_command("start", description="Starts the selected server")
     async def handle_start(ctx: discord.ApplicationContext):
-        print(f"handle_start was called by {ctx.author.name}")
         server = selected_server(GuildSaves(ctx))
-        server.fetch()
+        server = safe_fetch(server, ctx)
         if server.status_num == Status.on:
             return f"Server is already online at `{server.address}`"
         try:
@@ -85,18 +86,18 @@ def main():
         while (server.status_num != Status.loading and
                server.status_num != Status.starting and
                server.status_num != Status.on):
-            server.fetch()
+            server = safe_fetch(server, ctx)
             await asyncio.sleep(0.5)
         print(f"Server status: {server.status}, {server.status_num}")
         await r_interaction.edit_original_response(content=f"Server (`{server.address}`) is loading...")
         while (server.status_num != Status.starting and
                server.status_num != Status.on):
-            server.fetch()
+            server = safe_fetch(server, ctx)
             await asyncio.sleep(0.5)
         print(f"Server status: {server.status}, {server.status_num}")
         await r_interaction.edit_original_response(content=f"Server (`{server.address}`) is starting...")
         while server.status_num != Status.on:
-            server.fetch()
+            server = safe_fetch(server, ctx)
             await asyncio.sleep(0.5)
         print(f"Server status: {server.status}, {server.status_num}")
         await r_interaction.followup.send(
