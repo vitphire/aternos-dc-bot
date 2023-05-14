@@ -35,6 +35,7 @@ def main():
                 print("Session invalidated, retrying...")
                 return selected_server(GuildSaves(ctx))
             else:
+                print(f"HTTPException: {e.status=}, {e.code=}, {e.text=}, {e.response=}")
                 raise e
 
     @at_bot.at_command("servers", description="List all servers")
