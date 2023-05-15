@@ -1,7 +1,8 @@
 import asyncio
 
 import discord
-from discord import HTTPException, Interaction
+import requests
+from discord import Interaction
 from python_aternos import AternosServer, Status, ServerStartError
 
 from aternos_bot import AternosBot
@@ -28,15 +29,26 @@ def main():
         try:
             server.fetch()
             return server
-        except HTTPException as e:
-            if e.status == 418:
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 418:
                 # We need to delete the session file and authenticate again
                 at_bot.invalidate_session()
                 print("Session invalidated, retrying...")
                 return selected_server(GuildSaves(ctx))
             else:
-                print(f"HTTPException: {e.status=}, {e.code=}, {e.text=}, {e.response=}")
+                print(f"\u001b[0;31m")
+                print(f"HTTPError while fetching server:")
+                print(f"{e.__class__.__name__}:\n"
+                      f"\t{e.response.status_code}\n"
+                      f"\t{e.response.reason}")
+                print(f"\u001b[0m")
                 raise e
+        except Exception as e:
+            print(f"\u001b[0;31m")
+            print(f"Exception while fetching server:")
+            print(f"{e.__class__.__name__}: {e}")
+            print(f"\u001b[0m")
+            raise e
 
     @at_bot.at_command("servers", description="List all servers")
     async def handle_servers(_: discord.ApplicationContext):
