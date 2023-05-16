@@ -4,7 +4,7 @@ from functools import wraps
 import discord
 from discord import HTTPException
 from dotenv import load_dotenv
-from aternos_extended import Client
+from python_aternos import Client
 
 
 class AternosBot(discord.Bot):
