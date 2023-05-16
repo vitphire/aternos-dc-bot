@@ -72,7 +72,7 @@ class AternosServer:
         """Send a request to Aternos API to get all server info"""
 
         servreq = self.atserver_request(
-            'https://aternos.org/panel/ajax/status.php',
+            'https://aternos.org/ajax/status',
             'GET', sendtoken=True
         )
         self._info = json.loads(servreq.content)
@@ -112,7 +112,7 @@ class AternosServer:
         """
 
         startreq = self.atserver_request(
-            'https://aternos.org/panel/ajax/start.php',
+            'https://aternos.org/ajax/start',
             'GET', params={'headstart': int(headstart)},
             sendtoken=True
         )
@@ -134,7 +134,7 @@ class AternosServer:
         """Confirms server launching"""
 
         self.atserver_request(
-            'https://aternos.org/panel/ajax/confirm.php',
+            'https://aternos.org/ajax/confirm',
             'GET', sendtoken=True
         )
 
@@ -142,7 +142,7 @@ class AternosServer:
         """Stops the server"""
 
         self.atserver_request(
-            'https://aternos.org/panel/ajax/stop.php',
+            'https://aternos.org/ajax/stop',
             'GET', sendtoken=True
         )
 
@@ -150,7 +150,7 @@ class AternosServer:
         """Cancels server launching"""
 
         self.atserver_request(
-            'https://aternos.org/panel/ajax/cancel.php',
+            'https://aternos.org/ajax/cancel',
             'GET', sendtoken=True
         )
 
@@ -158,7 +158,7 @@ class AternosServer:
         """Restarts the server"""
 
         self.atserver_request(
-            'https://aternos.org/panel/ajax/restart.php',
+            'https://aternos.org/ajax/restart',
             'GET', sendtoken=True
         )
 
@@ -166,7 +166,7 @@ class AternosServer:
         """Accepts the Mojang EULA"""
 
         self.atserver_request(
-            'https://aternos.org/panel/ajax/eula.php',
+            'https://aternos.org/ajax/eula',
             'GET', sendtoken=True
         )
 
@@ -259,7 +259,7 @@ class AternosServer:
         """
 
         self.atserver_request(
-            'https://aternos.org/panel/ajax/options/subdomain.php',
+            'https://aternos.org/ajax/options/subdomain',
             'GET', params={'subdomain': value},
             sendtoken=True
         )
@@ -285,7 +285,7 @@ class AternosServer:
         """
 
         self.atserver_request(
-            'https://aternos.org/panel/ajax/options/motd.php',
+            'https://aternos.org/ajax/options/motd',
             'POST', data={'motd': value},
             sendtoken=True
         )
@@ -377,7 +377,7 @@ class AternosServer:
     def css_class(self) -> str:
         """CSS class for
         server status block
-        on official web site
+        on official website
         (offline, loading,
         loading starting, queueing)
 

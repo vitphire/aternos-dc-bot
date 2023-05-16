@@ -110,7 +110,7 @@ class Client:
             credentials['code'] = str(code)
 
         loginreq = atconn.request_cloudflare(
-            'https://aternos.org/panel/ajax/account/login.php',
+            'https://aternos.org/ajax/account/login',
             'POST', data=credentials, sendtoken=True
         )
 
@@ -396,7 +396,7 @@ class Client:
         """Log out from Aternos account"""
 
         self.atconn.request_cloudflare(
-            'https://aternos.org/panel/ajax/account/logout.php',
+            'https://aternos.org/ajax/account/logout',
             'GET', sendtoken=True
         )
 
@@ -410,7 +410,7 @@ class Client:
         """
 
         self.atconn.request_cloudflare(
-            'https://aternos.org/panel/ajax/account/username.php',
+            'https://aternos.org/ajax/account/username',
             'POST', data={'username': value}, sendtoken=True
         )
 
@@ -432,7 +432,7 @@ class Client:
             raise ValueError('Invalid e-mail!')
 
         self.atconn.request_cloudflare(
-            'https://aternos.org/panel/ajax/account/email.php',
+            'https://aternos.org/ajax/account/email',
             'POST', data={'email': value}, sendtoken=True
         )
 
@@ -460,7 +460,7 @@ class Client:
         """
 
         self.atconn.request_cloudflare(
-            'https://aternos.org/panel/ajax/account/password.php',
+            'https://aternos.org/ajax/account/password',
             'POST', data={
                 'oldpassword': old,
                 'newpassword': new,
@@ -472,7 +472,7 @@ class Client:
         a QR code for enabling 2FA"""
 
         return self.atconn.request_cloudflare(
-            'https://aternos.org/panel/ajax/account/secret.php',
+            'https://aternos.org/ajax/account/secret',
             'GET', sendtoken=True
         ).json()
 
@@ -499,7 +499,7 @@ class Client:
         """
 
         self.atconn.request_cloudflare(
-            'https://aternos.org/panel/ajax/account/twofactor.php',
+            'https://aternos.org/ajax/account/twofactor',
             'POST', data={
                 'code': code
             }, sendtoken=True
@@ -513,7 +513,7 @@ class Client:
         """
 
         self.atconn.request_cloudflare(
-            'https://aternos.org/panel/ajax/account/disbaleTwofactor.php',
+            'https://aternos.org/ajax/account/disbaleTwofactor',
             'POST', data={
                 'code': code
             }, sendtoken=True

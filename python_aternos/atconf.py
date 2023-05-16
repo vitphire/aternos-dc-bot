@@ -169,7 +169,7 @@ class AternosConfig:
             )
 
         self.atserv.atserver_request(
-            'https://aternos.org/panel/ajax/timezone.php',
+            'https://aternos.org/ajax/timezone',
             'POST', data={'timezone': value},
             sendtoken=True
         )
@@ -203,7 +203,7 @@ class AternosConfig:
         """
 
         self.atserv.atserver_request(
-            'https://aternos.org/panel/ajax/image.php',
+            'https://aternos.org/ajax/image',
             'POST', data={'image': f'openjdk:{value}'},
             sendtoken=True
         )
@@ -327,7 +327,7 @@ class AternosConfig:
     def __set_prop(self, file: str, option: str, value: Any) -> None:
 
         self.atserv.atserver_request(
-            'https://aternos.org/panel/ajax/config.php',
+            'https://aternos.org/ajax/config',
             'POST', data={
                 'file': file,
                 'option': option,

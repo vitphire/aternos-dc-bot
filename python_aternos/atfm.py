@@ -163,7 +163,7 @@ class FileManager:
         """
 
         file = self.atserv.atserver_request(  # type: ignore
-            'https://aternos.org/panel/ajax/files/download.php'
+            'https://aternos.org/ajax/files/download'
             'GET', params={
                 'file': path.replace('/', '%2F')
             }
@@ -183,7 +183,7 @@ class FileManager:
         """
 
         resp = self.atserv.atserver_request(  # type: ignore
-            'https://aternos.org/panel/ajax/worlds/download.php'
+            'https://aternos.org/ajax/worlds/download'
             'GET', params={
                 'world': world.replace('/', '%2F')
             }

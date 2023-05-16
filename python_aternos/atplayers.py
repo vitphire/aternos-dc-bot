@@ -98,7 +98,7 @@ class PlayersList:
         """
 
         self.atserv.atserver_request(
-            'https://aternos.org/panel/ajax/players/add.php',
+            'https://aternos.org/ajax/players/add',
             'POST', data={
                 'list': self.lst.value,
                 'name': name
@@ -115,7 +115,7 @@ class PlayersList:
         """
 
         self.atserv.atserver_request(
-            'https://aternos.org/panel/ajax/players/remove.php',
+            'https://aternos.org/ajax/players/remove',
             'POST', data={
                 'list': self.lst.value,
                 'name': name

@@ -87,7 +87,7 @@ class AternosFile:
 
         name = name.strip().replace('/', '_')
         req = self.atserv.atserver_request(
-            'https://aternos.org/panel/ajax/files/create.php',
+            'https://aternos.org/ajax/files/create',
             'POST', data={
                 'file': f'{self._path}/{name}',
                 'type': 'file'
@@ -114,7 +114,7 @@ class AternosFile:
             )
 
         req = self.atserv.atserver_request(
-            'https://aternos.org/panel/ajax/delete.php',
+            'https://aternos.org/ajax/delete',
             'POST', data={'file': self._path},
             sendtoken=True
         )
@@ -140,7 +140,7 @@ class AternosFile:
             )
 
         file = self.atserv.atserver_request(
-            'https://aternos.org/panel/ajax/files/download.php',
+            'https://aternos.org/ajax/files/download',
             'GET', params={
                 'file': self._path
             }
@@ -165,7 +165,7 @@ class AternosFile:
         """
 
         req = self.atserv.atserver_request(
-            'https://aternos.org/panel/ajax/save.php',
+            'https://aternos.org/ajax/save',
             'POST', data={
                 'file': self._path,
                 'content': value
